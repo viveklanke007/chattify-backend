@@ -170,7 +170,7 @@ const PORT = process.env.PORT || 5000;
    CORS SETUP (LOCAL + PRODUCTION)
 --------------------------------------------------------- */
 const allowedOrigins = [
-  "http://localhost:5173", // Local
+  "http://localhost:5173", // Your local frontend
   process.env.FRONTEND_URL, // Your deployed frontend (add in .env)
 ];
 
