@@ -475,11 +475,10 @@ router.post("/login", async (req, res) => {
     //   path: "/",
     //   maxAge: 7 * 24 * 60 * 60 * 1000,
     // });
-    const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProduction, // true only on Render
+      secure: true, // true only on Render
       sameSite: isProduction ? "none" : "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -501,7 +500,7 @@ router.post("/logout", (req, res) => {
 });
 
 // Protected routes
-router.use(auth);
+// router.use(auth);
 
 /* ---------------------------------------------------------
    ALL USERS
