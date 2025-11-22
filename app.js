@@ -326,8 +326,8 @@ const PORT = process.env.PORT || 5000;
 --------------------------------------------------------- */
 
 const allowedOrigins = [
-  "http://localhost:5173", // Local development
-  process.env.FRONTEND_URL, // Frontend deployed URL (set in Render)
+  "http://localhost:5173",
+  "https://chattify-frontend.vercel.app",
 ];
 
 app.use(
@@ -340,6 +340,20 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS not allowed"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  }),
+);
+
+app.options("*", cors()); // <-- REQUIRED FOR OPTIONS REQUESTS
 
 app.use(express.json());
 app.use(cookieParser());
