@@ -500,7 +500,7 @@ router.post("/logout", (req, res) => {
 });
 
 // Protected routes
-// router.use(auth);
+router.use(auth);
 
 /* ---------------------------------------------------------
    ALL USERS
