@@ -485,7 +485,7 @@ const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://chattify-frontend.vercel.app",
+  "https://chattify-frontend-dep.vercel.app/",
 ];
 
 // GLOBAL CORS MIDDLEWARE – applies to ALL requests
