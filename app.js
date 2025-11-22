@@ -479,13 +479,13 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 /* ---------------------------------------------------------
-   ⭐ FINAL 100% WORKING CORS FOR EXPRESS 5 + RENDER
-   (No CORS package, no wildcards, no crashes)
+   ⭐ FINAL 100% WORKING CORS FOR EXPRESS 5 + RENDER + VERCEL
 --------------------------------------------------------- */
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://chattify-frontend-dep.vercel.app/",
+  "https://chattify-frontend-dep.vercel.app",
+  "https://www.chattify-frontend-dep.vercel.app",
 ];
 
 // GLOBAL CORS MIDDLEWARE – applies to ALL requests
@@ -503,7 +503,7 @@ app.use((req, res, next) => {
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  // Handle OPTIONS preflight instantly
+  // Handle preflight instantly
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
