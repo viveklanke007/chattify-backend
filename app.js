@@ -341,8 +341,6 @@ app.use(
   }),
 );
 
-app.options("*", cors()); // <-- REQUIRED FOR OPTIONS REQUESTS
-
 app.use(express.json());
 app.use(cookieParser());
 
