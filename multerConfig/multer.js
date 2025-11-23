@@ -21,21 +21,37 @@
 // const upload = multer({ storage });
 // module.exports = upload;
 
+// const multer = require("multer");
+// const path = require("path");
+
+// // TEMP FOLDER storage only (Render-safe)
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, path.join(__dirname, "../temp")); // temporary folder
+//   },
+
+//   filename: (req, file, cb) => {
+//     const ext = path.extname(file.originalname);
+//     cb(null, Date.now() + ext); // unique file name
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// module.exports = upload;
+
 const multer = require("multer");
 const path = require("path");
 
-// TEMP FOLDER storage only (Render-safe)
+// TEMP folder must exist
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../temp")); // temporary folder
+    cb(null, path.join(__dirname, "../temp"));
   },
-
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext); // unique file name
+    cb(null, Date.now() + ext);
   },
 });
 
-const upload = multer({ storage });
-
-module.exports = upload;
+module.exports = multer({ storage });
