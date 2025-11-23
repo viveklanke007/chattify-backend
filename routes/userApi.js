@@ -40,8 +40,9 @@ router.post("/register", async (req, res) => {
     // Set token in httpOnly cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // true only in production with https
-      sameSite: "lax",
+      secure: true, // true only in production with https
+      sameSite: "none",
+      path: "/", // important for cross-site cookies
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -77,11 +78,18 @@ router.post("/login", async (req, res) => {
     });
 
     // Set token in httpOnly cookie
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: false,
+    //   sameSite: "lax",
+    //   path: "/",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000,
+    // });
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
+      secure: true,
+      sameSite: "none",
+      path: "/", // important for cross-site cookies
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
