@@ -58,17 +58,17 @@
 
 // module.exports = { sendMessage };
 
-// const message = require("../db/MessageModel");
-// const UserModel = require("../db/UserModel.js");
-// const GroupModel = require("../db/GroupModel.js");
-// const cloudinary = require("cloudinary").v2;
+const message = require("../db/MessageModel");
+const UserModel = require("../db/UserModel.js");
+const GroupModel = require("../db/GroupModel.js");
+const cloudinary = require("cloudinary").v2;
 
-// // Cloudinary config (use env variables)
-// cloudinary.config({
-//   cloud_name: process.env.CLOUD_NAME,
-//   api_key: process.env.CLOUD_API_KEY,
-//   api_secret: process.env.CLOUD_API_SECRET,
-// });
+// Cloudinary config (use env variables)
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 
 // const sendMessage = async (req, res) => {
 //   try {
