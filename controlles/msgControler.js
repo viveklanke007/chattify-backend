@@ -180,3 +180,5 @@ const sendMessage = async (req, res) => {
       .json({ message: "Upload failed", error: err.message });
   }
 };
+
+module.exports = { sendMessage };
