@@ -1,284 +1,3 @@
-// const express = require("express");
-// const router = express.Router();
-// const GroupModel = require("../db/GroupModel");
-// const UserModel = require("../db/UserModel");
-// const upload = require("../multerConfig/avatar"); // Import your multer config
-
-// router.post("/createGrp", async (req, res) => {
-//   try {
-//     const { groupname, createdBy } = req.body;
-//     console.log(groupname, createdBy);
-//     const newGroup = new GroupModel({
-//       groupname,
-//       createdBy,
-//       admins: [createdBy],
-//       members: [createdBy],
-//     });
-//     const user = await UserModel.findByIdAndUpdate(
-//       createdBy,
-//       { groups: [newGroup._id] },
-//       { new: true },
-//     );
-//     await newGroup.save();
-//     await user.save();
-//     res.json({ message: "Group created successfully", group: newGroup });
-//   } catch (err) {
-//     console.log("error", err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// router.post("/addMember", async (req, res) => {
-//   try {
-//     const { groupId, senderId, receiverId } = req.body;
-//     const group = await GroupModel.findById(groupId);
-//     if (!group) {
-//       return res.status(400).json({ message: "No group exists" });
-//     }
-
-//     // Check if sender is admin
-//     const isAdmin = group.admins.includes(senderId);
-//     if (!isAdmin)
-//       return res.status(403).json({ message: "You are not an admin" });
-
-//     const user = await UserModel.findById(receiverId);
-
-//     // Check if receiver is already a member or has an invitation
-//     if (
-//       group.members.includes(receiverId) ||
-//       group.memberRequest.includes(receiverId) ||
-//       user.groupRequest.includes(groupId)
-//     ) {
-//       return res
-//         .status(400)
-//         .json({ message: "Already a member or invitation exists" });
-//     }
-
-//     user.groupRequest.push({ from: senderId, group: groupId });
-//     await user.save();
-//     res.status(200).json({ message: "Request sent successfully", user });
-//   } catch (err) {
-//     console.log("error", err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// //receiverIds
-// router.post("/addMembers", async (req, res) => {
-//   try {
-//     const { groupId, senderId, receiverIds } = req.body; // receiverIds is an array
-
-//     const group = await GroupModel.findById(groupId);
-//     if (!group) {
-//       return res.status(400).json({ message: "No group exists" });
-//     }
-
-//     // Check if sender is admin
-//     const isAdmin = group.admins.includes(senderId);
-//     if (!isAdmin) {
-//       return res.status(403).json({ message: "You are not an admin" });
-//     }
-
-//     const alreadyMembers = [];
-//     const alreadyRequested = [];
-//     const success = [];
-
-//     // Loop through all receiverIds
-//     for (const receiverId of receiverIds) {
-//       const user = await UserModel.findById(receiverId);
-
-//       if (!user) continue;
-
-//       // Check if user is already a member or has an existing request
-//       if (
-//         group.members.includes(receiverId) ||
-//         group.memberRequest.includes(receiverId) ||
-//         user.groupRequest.some((req) => req.group.toString() === groupId)
-//       ) {
-//         alreadyMembers.push(receiverId);
-//         continue;
-//       }
-
-//       // Add request
-//       user.groupRequest.push({ from: senderId, group: groupId });
-//       await user.save();
-
-//       success.push(receiverId);
-//     }
-
-//     return res.status(200).json({
-//       message: "Requests processed successfully",
-//       successCount: success.length,
-//       alreadyMembersCount: alreadyMembers.length,
-//       alreadyRequestedCount: alreadyRequested.length,
-//       success,
-//       alreadyMembers,
-//       alreadyRequested,
-//     });
-//   } catch (err) {
-//     console.error("error", err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// // Remove member from group (admin only)
-// router.post("/removeMember", async (req, res) => {
-//   try {
-//     const { groupId, adminId, memberId } = req.body;
-//     const group = await GroupModel.findById(groupId);
-//     if (!group) {
-//       return res.status(400).json({ message: "No group exists" });
-//     }
-
-//     // Check if adminId is actually an admin
-//     const isAdmin = group.admins.includes(adminId);
-//     if (!isAdmin)
-//       return res.status(403).json({ message: "You are not an admin" });
-
-//     // Check if member is in group
-//     if (!group.members.includes(memberId)) {
-//       return res
-//         .status(400)
-//         .json({ message: "User is not a member of this group" });
-//     }
-
-//     // Remove member from group
-//     group.members = group.members.filter((id) => id.toString() !== memberId);
-//     await group.save();
-
-//     res.status(200).json({ message: "Member removed successfully", group });
-//   } catch (err) {
-//     console.log("error", err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// //accept member request
-// router.post("/acceptMemberRqt", async (req, res) => {
-//   try {
-//     const { groupId, requester, accepter } = req.body;
-//     console.log("body", requester, accepter);
-//     const group = await GroupModel.findById(groupId);
-//     const user = await UserModel.findById(requester);
-
-//     // Check if accepter is admin
-//     const isAdmin = group.admins.includes(accepter);
-//     if (!isAdmin)
-//       return res.status(403).json({ message: "You are not an admin" });
-
-//     group.memberRequest = group.memberRequest.filter(
-//       (req) => req.toString() !== requester,
-//     );
-//     group.members.push(requester);
-//     user.groups.push(groupId);
-//     await user.save();
-//     await group.save();
-
-//     res.status(200).json({ message: "Request accepted successfully", group });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({ msg: "some error" });
-//   }
-// });
-
-// //reject member request
-// router.post("/rejectMemberRqt", async (req, res) => {
-//   try {
-//     const { groupId, requester, accepter } = req.body;
-//     console.log("body", requester, accepter);
-//     const group = await GroupModel.findById(groupId);
-//     const user = await UserModel.findById(requester);
-
-//     // Check if accepter is admin
-//     const isAdmin = group.admins.includes(accepter);
-//     if (!isAdmin)
-//       return res.status(403).json({ message: "You are not an admin" });
-
-//     group.memberRequest = group.memberRequest.filter(
-//       (req) => req.toString() !== requester,
-//     );
-
-//     await group.save();
-
-//     res.status(200).json({ message: "Request rejrcted", group });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({ msg: "some error" });
-//   }
-// });
-
-// //get group details
-// router.post("/getGrpDetails", async (req, res) => {
-//   try {
-//     const { groupId } = req.body;
-//     const group = await GroupModel.findById(groupId);
-//     if (!group) return res.status(404).json({ message: "User not found" });
-
-//     res.status(200).json({ message: "group", grp: group });
-//   } catch (err) {
-//     console.log("error", err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// //get groups where user is member
-// router.post("/getGroups", async (req, res) => {
-//   try {
-//     const userId = req.body.userId;
-//     const groups = await GroupModel.find({ members: userId });
-//     res.status(200).json({ message: "groups", grp: groups });
-//   } catch (err) {
-//     console.log("errror", err);
-//   }
-// });
-
-// router.post("/updateProfile", upload.single("avatar"), async (req, res) => {
-//   try {
-//     const { bio, groupname, groupId } = req.body;
-
-//     const group = await GroupModel.findById(groupId);
-//     if (!group) {
-//       return res.status(404).json({ message: "group not found" });
-//     }
-
-//     // Track if anything was updated
-//     let updated = false;
-
-//     // Update avatar if a file was uploaded
-//     if (req.file) {
-//       group.avatar = `/avatar/${req.file.filename}`;
-//       updated = true;
-//     }
-
-//     // Update bio if provided
-//     if (
-//       (typeof bio === "string" && bio.trim() !== "") ||
-//       (typeof groupname === "string" && groupname.trim() !== "")
-//     ) {
-//       group.bio = bio.trim();
-//       group.groupname = groupname.trim();
-//       updated = true;
-//     }
-
-//     if (!updated) {
-//       return res.status(400).json({ message: "Nothing to update" });
-//     }
-
-//     await group.save();
-
-//     res.status(200).json({
-//       message: "Profile updated successfully",
-//       avatar: group.avatar,
-//       bio: group.bio,
-//     });
-//   } catch (err) {
-//     console.error("Update profile error:", err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// module.exports = router;
-
 // routes/groupRoute.js
 const express = require("express");
 const router = express.Router();
@@ -632,46 +351,61 @@ router.post("/getGroups", async (req, res) => {
   }
 });
 
-/**
- * Update profile (avatar, bio, groupname)
- * - Uses multer temp storage in req.file.path
- * - Uploads to Cloudinary if file present
- */
 router.post("/updateProfile", upload.single("avatar"), async (req, res) => {
   try {
     const { bio, groupname, groupId } = req.body;
-    if (!groupId) return res.status(400).json({ message: "groupId required" });
+
+    if (!groupId) {
+      return res.status(400).json({ message: "groupId required" });
+    }
 
     const group = await GroupModel.findById(groupId);
-    if (!group) return res.status(404).json({ message: "group not found" });
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
 
     let updated = false;
 
-    // Upload avatar to Cloudinary and remove temp file
+    // 1️⃣ Upload new avatar to Cloudinary
     if (req.file && req.file.path) {
       try {
+        // 🔥 OPTIONAL: delete OLD avatar if stored in Cloudinary
+        if (
+          group.avatar &&
+          group.avatar.startsWith("https://res.cloudinary.com")
+        ) {
+          const publicId = group.avatar.split("/").slice(-1)[0].split(".")[0];
+          await cloudinary.uploader.destroy(
+            `chatify/group-avatars/${publicId}`,
+          );
+        }
+
+        // Upload new avatar
         const uploadRes = await cloudinary.uploader.upload(req.file.path, {
           folder: "chatify/group-avatars",
           resource_type: "image",
+          width: 300,
+          height: 300,
+          crop: "fill",
         });
 
-        group.avatar = uploadRes.secure_url;
+        group.avatar = uploadRes.secure_url; // Save Cloudinary URL
         updated = true;
-      } catch (upErr) {
-        console.error("Cloudinary upload failed:", upErr);
+      } catch (err) {
+        console.error("Cloudinary upload failed:", err);
         return res.status(500).json({ message: "Avatar upload failed" });
       } finally {
-        // remove temp file
-        removeTempFile(req.file.path);
+        removeTempFile(req.file.path); // Always remove temp file
       }
     }
 
-    // Update bio & groupname
+    // 2️⃣ Update bio
     if (typeof bio === "string" && bio.trim() !== "") {
       group.bio = bio.trim();
       updated = true;
     }
 
+    // 3️⃣ Update group name
     if (typeof groupname === "string" && groupname.trim() !== "") {
       group.groupname = groupname.trim();
       updated = true;
@@ -683,17 +417,18 @@ router.post("/updateProfile", upload.single("avatar"), async (req, res) => {
 
     await group.save();
 
-    res.status(200).json({
-      message: "Profile updated successfully",
+    return res.status(200).json({
+      message: "Group updated successfully",
       avatar: group.avatar,
       bio: group.bio,
       groupname: group.groupname,
     });
   } catch (err) {
-    console.error("Update profile error:", err);
-    // Cleanup temp file if something went wrong and file still exists
+    console.error("Group update error:", err);
+
     if (req.file && req.file.path) removeTempFile(req.file.path);
-    res.status(500).json({ message: "Server error" });
+
+    return res.status(500).json({ message: "Server error" });
   }
 });
 

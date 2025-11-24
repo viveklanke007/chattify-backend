@@ -7,6 +7,13 @@ const GroupModel = require("../db/GroupModel.js");
 const upload = require("../multerConfig/avatar.js"); // Import your multer config
 const auth = require("../middleware/auth.js");
 require("dotenv").config();
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 
 // ✅ Register Route
 router.post("/register", async (req, res) => {
@@ -77,14 +84,6 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
-    // Set token in httpOnly cookie
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   secure: false,
-    //   sameSite: "lax",
-    //   path: "/",
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    // });
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
@@ -271,11 +270,9 @@ router.post("/joinGrpRqt", async (req, res) => {
   }
 });
 
-// both at same time
 router.post("/updateProfile", upload.single("avatar"), async (req, res) => {
   try {
-    const userId = req.user.id; // ✅ Corrected this line
-    console.log("User ID from token:", userId);
+    const userId = req.user.id; // user ID from auth middleware
     const { bio, username } = req.body;
 
     if (!userId) {
@@ -283,25 +280,41 @@ router.post("/updateProfile", upload.single("avatar"), async (req, res) => {
     }
 
     const user = await UserModel.findById(userId);
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Track if anything was updated
     let updated = false;
 
-    // Update avatar if a file was uploaded
+    // 1️⃣ If an avatar file is uploaded → upload to Cloudinary
     if (req.file) {
-      user.avatar = `/avatar/${req.file.filename}`;
+      // OPTIONAL: delete old avatar if stored in Cloudinary
+      if (user.avatar && user.avatar.startsWith("https://res.cloudinary.com")) {
+        const publicId = user.avatar.split("/").slice(-1)[0].split(".")[0];
+        await cloudinary.uploader.destroy(`chatapp/avatars/${publicId}`);
+      }
+
+      // Upload the new avatar
+      const uploaded = await cloudinary.uploader.upload(req.file.path, {
+        folder: "chatapp/avatars",
+        resource_type: "image",
+        width: 300,
+        height: 300,
+        crop: "fill",
+      });
+
+      user.avatar = uploaded.secure_url; // 🔥 Save the Cloudinary URL
       updated = true;
     }
 
-    // Update bio if provided
-    if (
-      (typeof bio === "string" && bio.trim() !== "") ||
-      (typeof username === "string" && username.trim() !== "")
-    ) {
+    // 2️⃣ Update bio and username
+    if (typeof bio === "string" && bio.trim() !== "") {
       user.bio = bio.trim();
+      updated = true;
+    }
+
+    if (typeof username === "string" && username.trim() !== "") {
       user.username = username.trim();
       updated = true;
     }
@@ -312,14 +325,15 @@ router.post("/updateProfile", upload.single("avatar"), async (req, res) => {
 
     await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Profile updated successfully",
-      avatar: user.avatar,
+      avatar: user.avatar, // Cloudinary URL
       bio: user.bio,
+      username: user.username,
     });
   } catch (err) {
     console.error("Update profile error:", err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
