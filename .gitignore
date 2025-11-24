@@ -18,8 +18,8 @@ logs
 log.*
 
 # Temporary folders (multer temp)
-temp/
-tmp/
+#temp/
+#tmp/
 
 # OS files
 .DS_Store
