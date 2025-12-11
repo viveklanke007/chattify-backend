@@ -19,7 +19,7 @@ const allowedOrigins = [
   "https://www.chattify-frontend-dep.vercel.app",
   ,
   process.env.FRONTEND_URL,
-];
+].filter(Boolean);
 
 // GLOBAL CORS MIDDLEWARE – applies to ALL requests
 app.use((req, res, next) => {
